@@ -1,0 +1,92 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_HUB_CREDS = credentials('docker-hub-creds')
+        GITHUB_CREDENTIALS = credentials('github-creds')
+        NAMESPACE = 'default'
+        IMAGE_TAG = "${BUILD_NUMBER}"
+        BLUE = 'blue'
+        GREEN = 'green'
+        SERVICES = 'auth product order cart payment'
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                echo "📥 Cloning repository..."
+                git branch: 'main', credentialsId: "${GITHUB_CREDENTIALS}", url: 'https://github.com/subin4123/ecommerce-app.git'
+            }
+        }
+
+        stage('Build & Push Docker Images') {
+            steps {
+                script {
+                    for (svc in SERVICES.split()) {
+                        echo "🐳 Building and pushing image for ${svc}..."
+                        sh "docker build -t subin4123/${svc}:${IMAGE_TAG} ./${svc}"
+                        withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                            sh """
+                                echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                                docker push subin4123/${svc}:${IMAGE_TAG}
+                            """
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Deploy with Blue/Green Strategy') {
+            steps {
+                script {
+                    for (svc in SERVICES.split()) {
+                        echo "🚀 Handling deployment for ${svc}..."
+
+                        def liveColor = sh(
+                            script: "kubectl get svc ${svc} -n ${NAMESPACE} -o jsonpath='{.spec.selector.color}' || echo ${BLUE}",
+                            returnStdout: true
+                        ).trim()
+
+                        def newColor = (liveColor == BLUE) ? GREEN : BLUE
+                        echo "🔵 Current live color: ${liveColor}"
+                        echo "🟢 Deploying new color: ${newColor}"
+
+                        sh """
+                            sed 's|{{TAG}}|${IMAGE_TAG}|g' ${svc}/k8s/deployment-${newColor}.yaml | kubectl apply -n ${NAMESPACE} -f -
+                            kubectl apply -n ${NAMESPACE} -f ${svc}/k8s/service-${newColor}.yaml
+                            kubectl rollout status deployment/${svc}-${newColor} -n ${NAMESPACE} --timeout=120s
+                            kubectl patch svc ${svc} -n ${NAMESPACE} -p '{"spec":{"selector":{"app":"${svc}","color":"${newColor}"}}}'
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Verify Deployments') {
+            steps {
+                script {
+                    for (svc in SERVICES.split()) {
+                        def color = sh(script: "kubectl get svc ${svc} -n ${NAMESPACE} -o jsonpath='{.spec.selector.color}'", returnStdout: true).trim()
+                        def status = sh(script: "kubectl get pods -n ${NAMESPACE} -l app=${svc},color=${color} -o jsonpath='{.items[*].status.conditions[?(@.type==\"Ready\")].status}'", returnStdout: true).trim()
+
+                        if (!status.contains("True")) {
+                            error "❌ ${svc}-${color} pods are not ready"
+                        } else {
+                            echo "✅ ${svc} is healthy on color ${color}"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "🎉 Deployment successful for all services!"
+        }
+        failure {
+            echo "❌ Deployment failed. Check pipeline logs for issues."
+        }
+    }
+}
+
