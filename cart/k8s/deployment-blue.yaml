@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auth
+  name: cart-blue
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: auth
+      app: cart
+      version: blue
   template:
     metadata:
       labels:
-        app: auth
+        app: cart
+        version: blue
     spec:
       containers:
-      - name: auth
-        image: your-dockerhub/auth
+      - name: cart
+        image: subin4123/cart:v1
         ports:
         - containerPort: 3000
-        env:
-        - name: PORT
-          value: "3000"
+

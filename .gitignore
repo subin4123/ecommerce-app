@@ -1,0 +1,17 @@
+cat <<EOF > .gitignore
+node_modules/
+*.log
+*.swp
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+__pycache__/
+dist/
+build/
+coverage/
+.env
+*.bak
+*~
+EOF
+node_modules/

@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-green
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: order
+      color: green
+  template:
+    metadata:
+      labels:
+        app: order
+        color: green
+    spec:
+      containers:
+      - name: order0
+        image: subin4123/auth:v2
+        ports:
+        - containerPort: 3000
+        env:
+        - name: PORT
+          value: "3000"
+

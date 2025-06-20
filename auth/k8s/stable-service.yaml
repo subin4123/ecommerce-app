@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth
+spec:
+  selector:
+    app: auth
+    color: green  # Change to blue when blue is the live version
+  ports:
+    - port: 80
+      targetPort: 3000
+

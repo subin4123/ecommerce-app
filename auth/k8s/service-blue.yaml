@@ -1,11 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: product
+  name: auth-blue
 spec:
   selector:
-    app: product
+    app: auth
+    color: blue
   ports:
   - protocol: TCP
     port: 80
     targetPort: 3000
+

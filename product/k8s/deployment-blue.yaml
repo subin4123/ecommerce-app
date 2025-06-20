@@ -1,22 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cart
+  name: product-blue
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: cart
+      app: product
+      color: blue
   template:
     metadata:
       labels:
-        app: cart
+        app: product
+        color: blue
     spec:
       containers:
-      - name: cart
-        image: your-dockerhub/cart
+      - name: product
+        image: subin4123/product:v2
         ports:
         - containerPort: 3000
         env:
         - name: PORT
           value: "3000"
+

@@ -1,22 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: order
+  name: product-green
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: order
+      app: product
+      color: green
   template:
     metadata:
       labels:
-        app: order
+        app: product
+        color: green
     spec:
       containers:
-      - name: order
-        image: your-dockerhub/order
+      - name: product
+        image: subin4123/product:v1
         ports:
         - containerPort: 3000
         env:
         - name: PORT
           value: "3000"
+

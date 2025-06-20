@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-blue
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: payment
+      version: blue
+  template:
+    metadata:
+      labels:
+        app: payment
+        version: blue
+    spec:
+      containers:
+      - name: payment
+        image: subin4123/payment:old
+        ports:
+        - containerPort: 3000
+        env:
+        - name: PORT
+          value: "3000"
+
