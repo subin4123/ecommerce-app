@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: auth
-        image: subin4123/auth:v1
+        image: subin4123/auth:{{TAG}}
         ports:
         - containerPort: 3000
         env:
