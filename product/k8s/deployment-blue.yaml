@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: product
-        image: subin4123/product:v2
+        image: subin4123/product:v1  # ✅ This is your stable blue tag
         ports:
         - containerPort: 3000
         env:

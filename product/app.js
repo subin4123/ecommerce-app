@@ -1,11 +1,29 @@
+// app.js
 const express = require('express');
-const client = require('prom-client');
 const app = express();
-const port = process.env.PORT || 3000;
-client.collectDefaultMetrics();
-app.get('/', (req, res) => res.send('Hello from product service'));
-app.get('/metrics', async (req, res) => {
-  res.set('Content-Type', client.register.contentType);
-  res.end(await client.register.metrics());
+
+// ✅ Health check
+app.get('/health', (req, res) => {
+  res.send('OK');
 });
-app.listen(port, () => console.log('Running on port', port));
+
+// ✅ Root route
+app.get('/', (req, res) => {
+  res.send('Hello from product service!');
+});
+
+// ✅ Example API route (optional)
+app.get('/api', (req, res) => {
+  res.json({ message: 'API works!' });
+});
+
+// ✅ Metrics (optional for Prometheus)
+app.get('/metrics', (req, res) => {
+  res.send('# Prometheus metrics go here\n');
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`product service running on port ${PORT}`);
+});
+
