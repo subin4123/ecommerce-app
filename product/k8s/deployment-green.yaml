@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: product
-        image: subin4123/product:v1
+        image: subin4123/product:{{TAG}}
         ports:
         - containerPort: 3000
         env:

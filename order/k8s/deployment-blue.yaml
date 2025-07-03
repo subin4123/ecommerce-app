@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: order
-        image: subin4123/auth:v1
+        image: subin4123/order:v1  # ✅ Make sure to push a blue version too!
         ports:
         - containerPort: 3000
         env:

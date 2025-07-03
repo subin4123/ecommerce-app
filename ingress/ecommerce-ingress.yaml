@@ -2,18 +2,33 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ecommerce-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   ingressClassName: nginx
   rules:
     - http:
         paths:
+          # ✅ EXCEPTION: No rewrite for /auth/metrics
+          - path: /auth/metrics
+            pathType: Prefix
+            backend:
+              service:
+                name: auth-blue
+                port:
+                  number: 80
+
+          # ✅ AUTH — rewrite everything else under /auth
           - path: /auth(/|$)(.*)
             pathType: ImplementationSpecific
             backend:
               service:
-                name: auth
+                name: auth-blue
                 port:
                   number: 80
+
+          # ✅ PRODUCT
           - path: /product(/|$)(.*)
             pathType: ImplementationSpecific
             backend:
@@ -21,6 +36,8 @@ spec:
                 name: product
                 port:
                   number: 80
+
+          # ✅ ORDER
           - path: /order(/|$)(.*)
             pathType: ImplementationSpecific
             backend:
@@ -28,6 +45,8 @@ spec:
                 name: order
                 port:
                   number: 80
+
+          # ✅ CART
           - path: /cart(/|$)(.*)
             pathType: ImplementationSpecific
             backend:
@@ -35,4 +54,5 @@ spec:
                 name: cart
                 port:
                   number: 80
+
 

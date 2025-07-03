@@ -1,11 +1,13 @@
+# cart/k8s/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: payment
+  name: cart
+  namespace: default
 spec:
   selector:
-    app: payment
-    version: green  # or blue, depending on active version
+    app: cart
+    color: blue
   ports:
     - port: 80
       targetPort: 3000

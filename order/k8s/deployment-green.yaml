@@ -15,8 +15,8 @@ spec:
         color: green
     spec:
       containers:
-      - name: order0
-        image: subin4123/auth:v2
+      - name: order
+        image: subin4123/order:v3  # ✅ Use NEW unique tag!
         ports:
         - containerPort: 3000
         env:
