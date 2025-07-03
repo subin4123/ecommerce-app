@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: cart
-        image: subin4123/cart:v1
+        image: subin4123/cart:{{TAG}}
         ports:
         - containerPort: 3000
 
